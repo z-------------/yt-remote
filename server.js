@@ -24,6 +24,15 @@ const sockets = {
     slave: null,
 };
 
+function forward(socket, eventName) {
+    socket.on(eventName, data => {
+        console.log(eventName, data);
+        if (socket !== sockets.master) return;
+
+        sockets.slave?.emit(eventName, data);
+    });
+}
+
 io.on("connection", socket => {
     console.log("connection");
 
@@ -36,10 +45,6 @@ io.on("connection", socket => {
         }
     });
 
-    socket.on("playerevent", data => {
-        console.log("playerevent", data);
-        if (socket !== sockets.master) return;
-
-        sockets.slave?.emit("playerevent", data);
-    });
+    forward(socket, "playerevent");
+    forward(socket, "volumechange");
 });

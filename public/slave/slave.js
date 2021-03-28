@@ -58,3 +58,7 @@ socket.on("playerevent", data => {
 
     prevState = data.state;
 });
+
+socket.on("volumechange", data => {
+    player.setVolume(data);
+});

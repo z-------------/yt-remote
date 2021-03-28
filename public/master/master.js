@@ -34,6 +34,8 @@ function onPlayerStateChange(event) {
 
 const videoIdInput = document.getElementById("videoid-input");
 const videoIdButton = document.getElementById("videoid-btn");
+const volumeInput = document.getElementById("volume-input");
+
 videoIdButton.addEventListener("click", e => {
     const url = new URL(videoIdInput.value);
     const videoId =
@@ -45,6 +47,10 @@ videoIdButton.addEventListener("click", e => {
     }
 
     player.loadVideoById(videoId);
+});
+
+volumeInput.addEventListener("change", e => {
+    socket.emit("volumechange", Number(e.target.value));
 });
 
 /* socket stuff */
