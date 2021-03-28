@@ -3,15 +3,17 @@
     <head>
         <meta charset="utf-8" />
         <title>yt-remote slave</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../style.css" />
     </head>
     <body>
         <h1>yt-remote</h1>
 
-        <input type="url" id="videoid-input" disabled style="display: block; width: 500px; max-width: 100%;" />
-        <div id="player" tabindex="-1" style="pointer-events: none;"></div>
+        <input type="text" id="videoid-input" disabled />
+        <audio id="audio" controls></audio>
+        <video id="video" controls></video>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
         <script src="slave.js"></script>
-        <script src="https://www.youtube.com/iframe_api"></script>
     </body>
 </html>

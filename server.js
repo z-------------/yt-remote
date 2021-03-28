@@ -1,6 +1,7 @@
 const Koa = require("koa");
 const socket = require("socket.io");
 const http = require("http");
+const { getUrls } = require("./lib/youtube-dl");
 
 const app = new Koa();
 
@@ -47,4 +48,9 @@ io.on("connection", socket => {
 
     forward(socket, "playerevent");
     forward(socket, "volumechange");
+
+    socket.on("question-mediaurls", async youtubeUrl => {
+        console.log("question-mediaurls", youtubeUrl);
+        socket.emit("answer-mediaurls", await getUrls(youtubeUrl));
+    });
 });
