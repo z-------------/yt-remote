@@ -40,7 +40,7 @@ videoIdButton.addEventListener("click", e => {
     const url = new URL(videoIdInput.value);
     const videoId =
         url.hostname === "youtu.be" ? url.pathname.replace(/\//g, "") :
-        url.hostname === "youtube.com" ? url.searchParams.get("v") :
+        url.hostname === "www.youtube.com" ? url.searchParams.get("v") :
         null;
     if (videoId === null) {
         return alert("invalid URL");
