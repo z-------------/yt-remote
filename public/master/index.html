@@ -11,7 +11,13 @@
 
         <input type="url" id="videoid-input" />
         <button id="videoid-btn">Go</button>
-        <div id="player"></div>
+
+        <div id="controls">
+            <button id="control-tostart">⏮&#xFE0F;</button>
+            <button id="control-backward">⏪&#xFE0F;</button>
+            <button id="control-playpause">⏯&#xFE0F;</button>
+            <button id="control-forward">⏩&#xFE0F;</button>
+        </div>
         
         <label>
             <span>Volume</span>
@@ -20,6 +26,5 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
         <script src="master.js"></script>
-        <script src="https://www.youtube.com/iframe_api"></script>
     </body>
 </html>

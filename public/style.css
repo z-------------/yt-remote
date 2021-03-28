@@ -29,3 +29,7 @@ input, button {
 #video, #audio {
     pointer-events: none;
 }
+
+#controls {
+    display: flex;
+}

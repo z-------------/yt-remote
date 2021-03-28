@@ -1,40 +1,11 @@
-/* player init */
-
-let player;
-
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player("player", {
-        height: "390",
-        width: "640",
-        videoId: "M7lc1UVf-VE",
-        events: {
-            "onReady": onPlayerReady,
-            "onStateChange": onPlayerStateChange,
-        },
-    });
-}
-
-function onPlayerReady(event) {
-    // event.target.playVideo();
-
-    player.mute();
-}
-
-function onPlayerStateChange(event) {
-    console.log("stateChange", event.data);
-
-    socket.emit("playerevent", {
-        state: event.data,
-        videoId: player.getVideoData()["video_id"],
-        currentTime: player.getCurrentTime(),
-    });
-}
-
 /* controls */
+
+let isPlaying = false;
 
 const videoIdInput = document.getElementById("videoid-input");
 const videoIdButton = document.getElementById("videoid-btn");
 const volumeInput = document.getElementById("volume-input");
+const controlsEl = document.getElementById("controls");
 
 videoIdButton.addEventListener("click", e => {
     const url = new URL(videoIdInput.value);
@@ -46,11 +17,23 @@ videoIdButton.addEventListener("click", e => {
         return alert("invalid URL");
     }
 
-    player.loadVideoById(videoId);
+    socket.emit("mediacommand", ["videochange", videoId]);
 });
 
 volumeInput.addEventListener("change", e => {
-    socket.emit("volumechange", Number(e.target.value));
+    socket.emit("mediacommand", ["volumechange", Number(e.target.value)]);
+});
+
+controlsEl.addEventListener("click", e => {
+    if (e.target.tagName !== "BUTTON") return;
+
+    const command = e.target.getAttribute("id").split("-")[1];
+    if (command === "playpause") {
+        isPlaying = !isPlaying;
+        socket.emit("mediacommand", [command, isPlaying]);
+    } else {
+        socket.emit("mediacommand", [command, null]);
+    }
 });
 
 /* socket stuff */

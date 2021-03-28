@@ -1,9 +1,3 @@
-const PS_ENDED = 0;
-const PS_PLAYING = 1;
-const PS_PAUSED = 2;
-const PS_BUFFERING = 3;
-const PS_CUED = 5;
-
 /* controls */
 
 let videoId;
@@ -11,6 +5,11 @@ const videoIdInput = document.getElementById("videoid-input");
 
 const videoEl = document.getElementById("video");
 const audioEl = document.getElementById("audio");
+
+const mediaEls = [
+    // videoEl,
+    audioEl,
+];
 
 async function setVideo(_videoId) {
     videoId = _videoId;
@@ -24,53 +23,45 @@ async function setVideo(_videoId) {
 }
 
 function mediaDo(fName) {
-    [
-        // videoEl,
-        audioEl,
-    ].forEach(el => el[fName]());
+    mediaEls.forEach(el => el[fName]());
 }
 
 function mediaSet(name, value) {
-    [
-        // videoEl,
-        audioEl,
-    ].forEach(el => el[name] = value);
+    mediaSetF(name, () => value);
+}
+
+function mediaSetF(name, valueFunc) {
+    mediaEls.forEach(el => el[name] = valueFunc(el[name]));
 }
 
 /* socket stuff */
 
-let prevState = -1;
-
 const socket = io();
 socket.emit("hello", "slave");
 
-socket.on("playerevent", data => {
-    console.log("playerevent", data);
+socket.on("mediacommand", ([command, arg]) => {
+    console.log("mediacommand", [command, arg]);
 
-    if (data.videoId !== videoId) { // video change
-        console.log("video change");
-        setVideo(data.videoId);
+    switch (command) {
+        case "videochange":
+            setVideo(arg)
+            break;
+        case "playpause":
+            mediaDo(arg ? "play" : "pause");
+            break;
+        case "tostart":
+            mediaSet("currentTime", 0);
+            break;
+        case "backward":
+            mediaSetF("currentTime", currentTime => currentTime - 10);
+            break;
+        case "forward":
+            mediaSetF("currentTime", currentTime => currentTime + 10);
+            break;
+        case "volumechange":
+            mediaSet("volume", arg / 100);
+            break;
     }
-
-    if (data.state === PS_BUFFERING) { // seek
-        console.log("seek");
-        mediaSet("currentTime", data.currentTime);
-    } else if (data.state === PS_PLAYING) {
-        console.log("play");
-        if (prevState === PS_PAUSED) {
-            mediaSet("currentTime", data.currentTime);
-        }
-        mediaDo("play");
-    } else if (data.state === PS_PAUSED) {
-        console.log("pause");
-        mediaDo("pause");
-    }
-
-    prevState = data.state;
-});
-
-socket.on("volumechange", data => {
-    mediaSet("volume", data / 100);
 });
 
 function socketAsk(questionName, data) {

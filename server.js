@@ -46,8 +46,7 @@ io.on("connection", socket => {
         }
     });
 
-    forward(socket, "playerevent");
-    forward(socket, "volumechange");
+    forward(socket, "mediacommand");
 
     socket.on("question-mediaurls", async youtubeUrl => {
         console.log("question-mediaurls", youtubeUrl);
