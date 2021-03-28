@@ -22,7 +22,7 @@ function onPlayerReady(event) {
 
 function onPlayerStateChange(event) {
     console.log("stateChange", event.data);
-    
+
     socket.emit("playerevent", {
         state: event.data,
         videoId: player.getVideoData()["video_id"],
@@ -33,9 +33,16 @@ function onPlayerStateChange(event) {
 /* controls */
 
 const videoIdInput = document.getElementById("videoid-input");
-videoIdInput.addEventListener("change", e => {
-    const url = new URL(e.target.value);
-    const videoId = url.searchParams.get("v");
+const videoIdButton = document.getElementById("videoid-btn");
+videoIdButton.addEventListener("click", e => {
+    const url = new URL(videoIdInput.value);
+    const videoId =
+        url.hostname === "youtu.be" ? url.pathname.replace(/\//g, "") :
+        url.hostname === "youtube.com" ? url.searchParams.get("v") :
+        null;
+    if (videoId === null) {
+        return alert("invalid URL");
+    }
 
     player.loadVideoById(videoId);
 });
