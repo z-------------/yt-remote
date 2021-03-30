@@ -1,3 +1,5 @@
+const LOADED_THRESHOLD = 10_000;
+
 /* controls */
 
 let videoId;
@@ -19,15 +21,7 @@ async function setVideo(_videoId) {
 
     const parts = [];
     let readBytes = 0;
-    let srcSet = false;
-
-    function startMedia() {
-        // videoEl.src = URL.createObjectURL(new Blob(parts));
-        // videoEl.play();
-
-        mediaSet("src", URL.createObjectURL(new Blob(parts)));
-        mediaDo("play");
-    }
+    let isMediaStarted = false;
 
     ss(socket).emit("getstream", stream, _videoId);
     stream.on("data", chunk => {
@@ -35,20 +29,26 @@ async function setVideo(_videoId) {
         readBytes += chunk.length;
         parts.push(chunk);
 
-        if (!srcSet && readBytes >= 10_000) {
-            console.log(`We have ${readBytes} bytes of data, set src and start playing.`);
-            srcSet = true;
-            startMedia();
+        if (!isMediaStarted && readBytes >= LOADED_THRESHOLD) {
+            mediaSet("src", URL.createObjectURL(new Blob(parts)));
+            mediaDo("play").then(() => {
+                console.log("media play started.");
+                isMediaStarted = true;
+            }).catch(() => {
+                console.warn("media not yet ready to play.");
+            });
         }
     });
     stream.on("end", () => {
         console.log("stream end");
-        startMedia();
+        if (!isMediaStarted) {
+            mediaDo("play");
+        }
     });
 }
 
-function mediaDo(fName) {
-    mediaEls.forEach(el => el[fName]());
+async function mediaDo(fName) {
+    return await Promise.all(mediaEls.map(el => el[fName]()));
 }
 
 function mediaSet(name, value) {

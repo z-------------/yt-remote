@@ -57,7 +57,7 @@ io.on("connection", socket => {
         ytdlProc.stdout.pipe(stream);
 
         ytdlProc.stdout.on("end", () => {
-            console.log("ytdlProc.stdout ended.");
+            console.log("stdout stream end");
         });
     });
 });
