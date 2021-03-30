@@ -27,6 +27,7 @@ input, button {
 }
 
 #video, #audio {
+    display: block;
     pointer-events: none;
 }
 

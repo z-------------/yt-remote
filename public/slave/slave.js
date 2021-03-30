@@ -15,11 +15,36 @@ async function setVideo(_videoId) {
     videoId = _videoId;
     videoIdInput.value = _videoId;
 
-    const [videoUrl, audioUrl] = await socketAsk("mediaurls", `https://www.youtube.com/watch?v=${_videoId}`);
-    console.log({ videoUrl, audioUrl });
+    const stream = ss.createStream();
 
-    // videoEl.src = videoUrl;
-    audioEl.src = audioUrl;
+    const parts = [];
+    let readBytes = 0;
+    let srcSet = false;
+
+    function startMedia() {
+        // videoEl.src = URL.createObjectURL(new Blob(parts));
+        // videoEl.play();
+
+        mediaSet("src", URL.createObjectURL(new Blob(parts)));
+        mediaDo("play");
+    }
+
+    ss(socket).emit("getstream", stream, _videoId);
+    stream.on("data", chunk => {
+        console.log(`read ${chunk.length} bytes of data:`, chunk);
+        readBytes += chunk.length;
+        parts.push(chunk);
+
+        if (!srcSet && readBytes >= 10_000) {
+            console.log(`We have ${readBytes} bytes of data, set src and start playing.`);
+            srcSet = true;
+            startMedia();
+        }
+    });
+    stream.on("end", () => {
+        console.log("stream end");
+        startMedia();
+    });
 }
 
 function mediaDo(fName) {
@@ -56,22 +81,10 @@ socket.on("mediacommand", ([command, arg]) => {
             mediaSetF("currentTime", currentTime => currentTime - 10);
             break;
         case "forward":
-            mediaSetF("currentTime", currentTime => currentTime + 10);
+            mediaSetF("currentTime", currentTime => currentTime + 30);
             break;
         case "volumechange":
             mediaSet("volume", arg / 100);
             break;
     }
 });
-
-function socketAsk(questionName, data) {
-    return new Promise((resolve, reject) => {
-        function cb(answer) {
-            socket.offAny(cb);
-            resolve(answer);
-        }
-
-        socket.on(`answer-${questionName}`, cb);
-        socket.emit(`question-${questionName}`, data);
-    });
-}

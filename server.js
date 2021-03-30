@@ -1,7 +1,8 @@
 const Koa = require("koa");
 const socket = require("socket.io");
 const http = require("http");
-const { getUrls } = require("./lib/youtube-dl");
+const ss = require("socket.io-stream");
+const { spawn } = require("child_process");
 
 const app = new Koa();
 
@@ -48,8 +49,15 @@ io.on("connection", socket => {
 
     forward(socket, "mediacommand");
 
-    socket.on("question-mediaurls", async youtubeUrl => {
-        console.log("question-mediaurls", youtubeUrl);
-        socket.emit("answer-mediaurls", await getUrls(youtubeUrl));
+    ss(socket).on("getstream", async (stream, youtubeUrl) => {
+        console.log("getstream", youtubeUrl);
+        
+        const ytdlProc = spawn("youtube-dl", ["-o", "-", `https://www.youtube.com/watch?v=${youtubeUrl}`]);
+
+        ytdlProc.stdout.pipe(stream);
+
+        ytdlProc.stdout.on("end", () => {
+            console.log("ytdlProc.stdout ended.");
+        });
     });
 });
