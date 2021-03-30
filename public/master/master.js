@@ -28,12 +28,7 @@ controlsEl.addEventListener("click", e => {
     if (e.target.tagName !== "BUTTON") return;
 
     const command = e.target.getAttribute("id").split("-")[1];
-    if (command === "playpause") {
-        isPlaying = !isPlaying;
-        socket.emit("mediacommand", [command, isPlaying]);
-    } else {
-        socket.emit("mediacommand", [command, null]);
-    }
+    socket.emit("mediacommand", [command, null]);
 });
 
 /* socket stuff */

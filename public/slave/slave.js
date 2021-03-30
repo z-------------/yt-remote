@@ -55,6 +55,10 @@ function mediaSet(name, value) {
     mediaSetF(name, () => value);
 }
 
+function mediaGet(name) {
+    return mediaEls[0][name];
+}
+
 function mediaSetF(name, valueFunc) {
     mediaEls.forEach(el => el[name] = valueFunc(el[name]));
 }
@@ -72,7 +76,7 @@ socket.on("mediacommand", ([command, arg]) => {
             setVideo(arg)
             break;
         case "playpause":
-            mediaDo(arg ? "play" : "pause");
+            mediaDo(mediaGet("paused") ? "play" : "pause");
             break;
         case "tostart":
             mediaSet("currentTime", 0);
