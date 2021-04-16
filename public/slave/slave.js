@@ -36,6 +36,7 @@ async function setVideo(_videoId) {
                 isMediaStarted = true;
             }).catch(() => {
                 console.warn("media not yet ready to play.");
+                mediaSet("src", null);
             });
         }
     });
