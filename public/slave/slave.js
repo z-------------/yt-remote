@@ -28,20 +28,10 @@ async function setVideo(_videoId) {
         console.log(`read ${chunk.length} bytes of data:`, chunk);
         readBytes += chunk.length;
         parts.push(chunk);
-
-        if (!isMediaStarted && readBytes >= LOADED_THRESHOLD) {
-            mediaSet("src", URL.createObjectURL(new Blob(parts)));
-            mediaDo("play").then(() => {
-                console.log("media play started.");
-                isMediaStarted = true;
-            }).catch(() => {
-                console.warn("media not yet ready to play.");
-                mediaSet("src", null);
-            });
-        }
     });
     stream.on("end", () => {
         console.log("stream end");
+        mediaSet("src", URL.createObjectURL(new Blob(parts)));
         if (!isMediaStarted) {
             mediaDo("play");
         }
