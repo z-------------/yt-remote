@@ -21,7 +21,6 @@ async function setVideo(_videoId) {
 
     const parts = [];
     let readBytes = 0;
-    let isMediaStarted = false;
 
     ss(socket).emit("getstream", stream, _videoId);
     stream.on("data", chunk => {
@@ -32,9 +31,7 @@ async function setVideo(_videoId) {
     stream.on("end", () => {
         console.log("stream end");
         mediaSet("src", URL.createObjectURL(new Blob(parts)));
-        if (!isMediaStarted) {
-            mediaDo("play");
-        }
+        mediaDo("play");
     });
 }
 
